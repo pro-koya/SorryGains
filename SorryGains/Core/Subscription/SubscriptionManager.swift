@@ -9,8 +9,8 @@ import Supabase
 // StoreKit 2 で実際の購入フローを提供する。
 //
 // 商品 ID:
-//   com.muscle360.bundle.pro.monthly  - バンドル月額 ¥250
-//   com.muscle360.bundle.pro.yearly   - バンドル年額 ¥2,500
+//   com.sorrygains.bundle.pro.monthly  - バンドル月額 ¥250
+//   com.sorrygains.bundle.pro.yearly   - バンドル年額 ¥2,500
 //
 // 参照:
 //   - Forge/SubscriptionManager.swift（設計パターン共通）
@@ -40,8 +40,8 @@ final class SubscriptionManager {
     // MARK: - Product IDs
 
     static let bundleProductIdentifiers: Set<String> = [
-        "com.muscle360.bundle.pro.monthly",
-        "com.muscle360.bundle.pro.yearly"
+        "com.sorrygains.bundle.pro.monthly",
+        "com.sorrygains.bundle.pro.yearly"
     ]
 
     // MARK: - Private
@@ -90,7 +90,7 @@ final class SubscriptionManager {
     @discardableResult
     func purchaseBundleMonthly() async -> Bool {
         guard let product = products.first(where: {
-            $0.id == "com.muscle360.bundle.pro.monthly"
+            $0.id == "com.sorrygains.bundle.pro.monthly"
         }) else {
             errorMessage = "商品が見つかりません。"
             return false
@@ -102,7 +102,7 @@ final class SubscriptionManager {
     @discardableResult
     func purchaseBundleYearly() async -> Bool {
         guard let product = products.first(where: {
-            $0.id == "com.muscle360.bundle.pro.yearly"
+            $0.id == "com.sorrygains.bundle.pro.yearly"
         }) else {
             errorMessage = "商品が見つかりません。"
             return false
@@ -302,7 +302,7 @@ extension SubscriptionManager {
     /// バンドル月額表示用文字列（"¥250/月" 形式）。プロダクト未取得なら空文字。
     var bundleMonthlyDisplayPrice: String {
         guard let product = products.first(where: {
-            $0.id == "com.muscle360.bundle.pro.monthly"
+            $0.id == "com.sorrygains.bundle.pro.monthly"
         }) else { return "" }
         return "\(product.displayPrice)/月"
     }
@@ -310,7 +310,7 @@ extension SubscriptionManager {
     /// バンドル年額表示用文字列（"¥2,500/年" 形式）。
     var bundleYearlyDisplayPrice: String {
         guard let product = products.first(where: {
-            $0.id == "com.muscle360.bundle.pro.yearly"
+            $0.id == "com.sorrygains.bundle.pro.yearly"
         }) else { return "" }
         return "\(product.displayPrice)/年"
     }

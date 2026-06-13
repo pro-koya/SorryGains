@@ -246,7 +246,7 @@ struct SettingsView: View {
                             price: subscriptionManager.bundleMonthlyDisplayPrice.isEmpty
                                 ? "¥250/月"
                                 : subscriptionManager.bundleMonthlyDisplayPrice,
-                            productId: "com.muscle360.bundle.pro.monthly"
+                            productId: "com.sorrygains.bundle.pro.monthly"
                         )
                         .accessibilityIdentifier("bundlePlanMonthlyRow")
                         bundlePlanRow(
@@ -255,7 +255,7 @@ struct SettingsView: View {
                                 ? "¥2,500/年"
                                 : subscriptionManager.bundleYearlyDisplayPrice,
                             badge: "17% OFF",
-                            productId: "com.muscle360.bundle.pro.yearly"
+                            productId: "com.sorrygains.bundle.pro.yearly"
                         )
                         .accessibilityIdentifier("bundlePlanYearlyRow")
                     }
@@ -324,7 +324,7 @@ struct SettingsView: View {
                     Task {
                         isBundlePurchasing = true
                         defer { isBundlePurchasing = false }
-                        if productId == "com.muscle360.bundle.pro.monthly" {
+                        if productId == "com.sorrygains.bundle.pro.monthly" {
                             await subscriptionManager.purchaseBundleMonthly()
                         } else {
                             await subscriptionManager.purchaseBundleYearly()

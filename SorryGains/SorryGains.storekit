@@ -34,7 +34,7 @@
               "locale" : "ja_JP"
             }
           ],
-          "productID" : "com.muscle360.bundle.pro.monthly",
+          "productID" : "com.sorrygains.bundle.pro.monthly",
           "recurringSubscriptionPeriod" : "P1M",
           "referenceName" : "Muscle360 Pro Bundle Monthly",
           "subscriptionGroupID" : "C2D8F4A1",
@@ -54,7 +54,7 @@
               "locale" : "ja_JP"
             }
           ],
-          "productID" : "com.muscle360.bundle.pro.yearly",
+          "productID" : "com.sorrygains.bundle.pro.yearly",
           "recurringSubscriptionPeriod" : "P1Y",
           "referenceName" : "Muscle360 Pro Bundle Yearly",
           "subscriptionGroupID" : "C2D8F4A1",
