@@ -15,6 +15,8 @@
 	</array>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-4570439660764279~1523718276</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>筋肉ごめんでは、あなたに合ったパーソナライズ広告を表示するため、広告識別子（IDFA）の利用許可をお願いしています。許可しない場合も引き続きアプリをご利用いただけますが、広告の関連性が低下することがあります。</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

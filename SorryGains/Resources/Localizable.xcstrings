@@ -11472,56 +11472,146 @@
     },
     "bundle.section.title": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "Muscle360 Pro バンドル" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Muscle360 Pro Bundle" } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muscle360 Pro バンドル"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muscle360 Pro Bundle"
+          }
+        }
       }
     },
     "bundle.section.footer.active": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "バンドル加入中です。広告は非表示、仙人助言は詳細モードで動作しています。" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Bundle active. Ads are hidden and Sage advice runs in detailed mode." } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バンドル加入中です。広告は非表示、仙人助言は詳細モードで動作しています。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bundle active. Ads are hidden and Sage advice runs in detailed mode."
+          }
+        }
       }
     },
     "bundle.section.footer.inactive": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "バンドルに加入すると広告が非表示になり、仙人助言が詳細モードになります。" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Subscribe to hide ads and unlock detailed Sage advice." } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "バンドルに加入すると広告が非表示になり、仙人助言が詳細モードになります。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribe to hide ads and unlock detailed Sage advice."
+          }
+        }
       }
     },
     "bundle.status.active": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "Muscle360 Pro 加入中" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Muscle360 Pro Active" } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muscle360 Pro 加入中"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Muscle360 Pro Active"
+          }
+        }
       }
     },
     "bundle.status.active.description": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "広告非表示・仙人助言詳細モード有効" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Ads hidden · Detailed Sage advice enabled" } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "広告非表示・仙人助言詳細モード有効"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ads hidden · Detailed Sage advice enabled"
+          }
+        }
       }
     },
     "bundle.description": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "Liftly・Forge・筋肉ごめん 3アプリの Pro 機能がすべて使えます。" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Unlock Pro features across Liftly, Forge, and SorryGains." } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liftly・Forge・筋肉ごめん 3アプリの Pro 機能がすべて使えます。"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unlock Pro features across Liftly, Forge, and SorryGains."
+          }
+        }
       }
     },
     "bundle.plan.monthly": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "月額プラン" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Monthly" } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "月額プラン"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monthly"
+          }
+        }
       }
     },
     "bundle.plan.yearly": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "年額プラン" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Yearly" } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "年額プラン"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Yearly"
+          }
+        }
       }
     },
     "bundle.plan.subscribe": {
       "localizations": {
-        "ja": { "stringUnit": { "state": "translated", "value": "加入する" } },
-        "en": { "stringUnit": { "state": "translated", "value": "Subscribe" } }
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "加入する"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subscribe"
+          }
+        }
       }
     },
     "domain.strength": {
@@ -11616,6 +11706,22 @@
           "stringUnit": {
             "state": "translated",
             "value": "[Forge: %@] "
+          }
+        }
+      }
+    },
+    "bundle.plan.restore": {
+      "localizations": {
+        "ja": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "以前の購入を復元"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Restore Purchases"
           }
         }
       }

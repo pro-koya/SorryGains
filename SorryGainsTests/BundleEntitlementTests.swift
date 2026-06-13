@@ -176,6 +176,71 @@ struct SagePromptBuilderBundleTests {
     }
 }
 
+// MARK: - SubscriptionManager Purchase State Tests
+//
+// 注意: StoreKit 2 の purchase() / currentEntitlements は実際の App Store 接続が必要なため、
+// ここでは StoreKit 非依存の状態管理メソッドのみテストする。
+// purchase() フローの E2E テストは StoreKit Test Plan（SorryGains.storekit）を使う手動テストで検証。
+
+@Suite("SubscriptionManager purchase state")
+@MainActor
+struct SubscriptionManagerPurchaseStateTests {
+
+    // ケース 1: 初期状態は isBundleActive = false
+    @Test("initial isBundleActive is false")
+    func initialBundleActiveIsFalse() async {
+        let manager = SubscriptionManager()
+        // init は非同期タスクを spawn するが、主スレッドでは即 false
+        #expect(manager.isBundleActive == false)
+    }
+
+    // ケース 2: updateBundleActive(true) で isBundleActive が true になる
+    @Test("updateBundleActive sets isBundleActive to true")
+    func updateBundleActiveToTrue() async {
+        let manager = SubscriptionManager()
+        manager.updateBundleActive(true)
+        #expect(manager.isBundleActive == true)
+    }
+
+    // ケース 3: updateBundleActive(false) で isBundleActive が false に戻る
+    @Test("updateBundleActive resets isBundleActive to false")
+    func updateBundleActiveToFalse() async {
+        let manager = SubscriptionManager()
+        manager.updateBundleActive(true)
+        manager.updateBundleActive(false)
+        #expect(manager.isBundleActive == false)
+    }
+
+    // ケース 4: プロダクト未取得時は月額表示文字列が空文字
+    @Test("bundleMonthlyDisplayPrice is empty when no products loaded")
+    func monthlyDisplayPriceEmptyWhenNoProducts() async {
+        let manager = SubscriptionManager()
+        // products はロード前なので空配列 → 空文字を返す
+        #expect(manager.bundleMonthlyDisplayPrice == "")
+    }
+
+    // ケース 5: プロダクト未取得時は年額表示文字列が空文字
+    @Test("bundleYearlyDisplayPrice is empty when no products loaded")
+    func yearlyDisplayPriceEmptyWhenNoProducts() async {
+        let manager = SubscriptionManager()
+        #expect(manager.bundleYearlyDisplayPrice == "")
+    }
+
+    // ケース 6: 初期状態は isPurchasing = false
+    @Test("initial isPurchasing is false")
+    func initialIsPurchasingIsFalse() async {
+        let manager = SubscriptionManager()
+        #expect(manager.isPurchasing == false)
+    }
+
+    // ケース 7: 初期状態は errorMessage = nil
+    @Test("initial errorMessage is nil")
+    func initialErrorMessageIsNil() async {
+        let manager = SubscriptionManager()
+        #expect(manager.errorMessage == nil)
+    }
+}
+
 // MARK: - AdMobConfig Bundle Guard Tests
 
 @Suite("AdMobConfig bundle guard")

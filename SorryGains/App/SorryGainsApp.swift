@@ -1,3 +1,4 @@
+import AppTrackingTransparency
 import GoogleMobileAds
 import SwiftData
 import SwiftUI
@@ -8,6 +9,7 @@ final class AppDelegate: NSObject, UIApplicationDelegate {
         _ application: UIApplication,
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil
     ) -> Bool {
+        // AdMob を必ず起動する（ATT の結果に関わらず）
         MobileAds.shared.start()
         return true
     }
@@ -76,6 +78,9 @@ struct SorryGainsApp: App {
                     _ = await CharacterNotificationManager.shared.requestPermission()
                     // 起動時にバンドル加入状況を取得
                     await bundleEntitlementService.refresh(subscriptionManager: subscriptionManager)
+                    // ATT 許可リクエスト（AdMob のパーソナライズ広告に必要）
+                    // AdMob.start() は AppDelegate で先に呼んでいるため、ATT 結果に関わらず広告は動作する
+                    await requestTrackingAuthorizationIfNeeded()
                 }
                 .onChange(of: scenePhase) { _, newPhase in
                     if newPhase == .active {
@@ -91,6 +96,18 @@ struct SorryGainsApp: App {
                 }
         }
         .modelContainer(modelContainer)
+    }
+
+    // MARK: - ATT
+
+    /// ATT 許可をまだリクエストしていない場合にダイアログを表示する。
+    /// iOS 14+ で .notDetermined のときのみダイアログが出る。
+    /// 結果に関わらず AdMob は動作する（非パーソナライズ広告にフォールバック）。
+    private func requestTrackingAuthorizationIfNeeded() async {
+        guard #available(iOS 14, *) else { return }
+        let status = ATTrackingManager.trackingAuthorizationStatus
+        guard status == .notDetermined else { return }
+        _ = await ATTrackingManager.requestTrackingAuthorization()
     }
 
     private static func makeModelContainer(isStoredInMemoryOnly: Bool) throws -> ModelContainer {

@@ -243,18 +243,45 @@ struct SettingsView: View {
                     VStack(spacing: Spacing.xs) {
                         bundlePlanRow(
                             title: "bundle.plan.monthly",
-                            price: "¥250/月",
+                            price: subscriptionManager.bundleMonthlyDisplayPrice.isEmpty
+                                ? "¥250/月"
+                                : subscriptionManager.bundleMonthlyDisplayPrice,
                             productId: "com.muscle360.bundle.pro.monthly"
                         )
                         .accessibilityIdentifier("bundlePlanMonthlyRow")
                         bundlePlanRow(
                             title: "bundle.plan.yearly",
-                            price: "¥2,500/年",
+                            price: subscriptionManager.bundleYearlyDisplayPrice.isEmpty
+                                ? "¥2,500/年"
+                                : subscriptionManager.bundleYearlyDisplayPrice,
                             badge: "17% OFF",
                             productId: "com.muscle360.bundle.pro.yearly"
                         )
                         .accessibilityIdentifier("bundlePlanYearlyRow")
                     }
+
+                    // 購入エラー表示
+                    if let errorMessage = subscriptionManager.errorMessage {
+                        HStack {
+                            Image(systemName: "exclamationmark.triangle")
+                                .foregroundStyle(.red)
+                            Text(errorMessage)
+                                .font(.SG.caption)
+                                .foregroundStyle(.red)
+                        }
+                    }
+
+                    // 復元ボタン
+                    Button {
+                        Task { await subscriptionManager.restore() }
+                    } label: {
+                        Text("bundle.plan.restore")
+                            .font(.SG.caption)
+                            .foregroundStyle(Color.SG.textSecondary)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(subscriptionManager.isPurchasing)
+                    .accessibilityIdentifier("bundleRestoreButton")
                 }
             }
         }
@@ -289,13 +316,24 @@ struct SettingsView: View {
                     .foregroundStyle(Color.SG.textSecondary)
             }
             Spacer()
-            if subscriptionManager.isLoading || isBundlePurchasing {
+            if subscriptionManager.isLoading || subscriptionManager.isPurchasing || isBundlePurchasing {
                 ProgressView()
                     .controlSize(.small)
             } else {
-                Link("bundle.plan.subscribe", destination: URL(string: "https://apps.apple.com/account/subscriptions")!)
-                    .font(.SG.caption.bold())
-                    .foregroundStyle(Color.SG.accent)
+                Button(String(localized: "bundle.plan.subscribe")) {
+                    Task {
+                        isBundlePurchasing = true
+                        defer { isBundlePurchasing = false }
+                        if productId == "com.muscle360.bundle.pro.monthly" {
+                            await subscriptionManager.purchaseBundleMonthly()
+                        } else {
+                            await subscriptionManager.purchaseBundleYearly()
+                        }
+                    }
+                }
+                .font(.SG.caption.bold())
+                .foregroundStyle(Color.SG.accent)
+                .buttonStyle(.plain)
             }
         }
     }
