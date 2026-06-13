@@ -1,0 +1,70 @@
+{
+  "identifier" : "SorryGains-StoreKit",
+  "nonRenewingSubscriptions" : [],
+  "products" : [],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "ja_JP",
+    "_storefront" : "JPN",
+    "_storeKitErrors" : []
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "C2D8F4A1",
+      "localizations" : [
+        {
+          "description" : "Liftly・Forge・筋肉ごめん 3アプリの Pro 機能がすべて使えるバンドルプラン",
+          "displayName" : "Muscle360 Pro",
+          "locale" : "ja_JP"
+        }
+      ],
+      "name" : "Muscle360 Pro Bundle",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "250",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "B4E2A7F3",
+          "localizations" : [
+            {
+              "description" : "3アプリの Pro 機能をまとめてお使いいただけます。",
+              "displayName" : "Muscle360 Pro（月額）",
+              "locale" : "ja_JP"
+            }
+          ],
+          "productID" : "com.muscle360.bundle.pro.monthly",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "Muscle360 Pro Bundle Monthly",
+          "subscriptionGroupID" : "C2D8F4A1",
+          "type" : "RecurringSubscription"
+        },
+        {
+          "adHocOffers" : [],
+          "codeOffers" : [],
+          "displayPrice" : "2500",
+          "familyShareable" : false,
+          "groupNumber" : 2,
+          "internalID" : "D6F1B9E5",
+          "localizations" : [
+            {
+              "description" : "3アプリの Pro 機能をまとめてお使いいただけます。月額より17%お得。",
+              "displayName" : "Muscle360 Pro（年額）",
+              "locale" : "ja_JP"
+            }
+          ],
+          "productID" : "com.muscle360.bundle.pro.yearly",
+          "recurringSubscriptionPeriod" : "P1Y",
+          "referenceName" : "Muscle360 Pro Bundle Yearly",
+          "subscriptionGroupID" : "C2D8F4A1",
+          "type" : "RecurringSubscription"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}
