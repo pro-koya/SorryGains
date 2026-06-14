@@ -57,6 +57,7 @@
 		6C6D19B1DA189C95774D35AD /* DrinkingSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8EB0FCF0AC54D7FF262BDFCD /* DrinkingSession.swift */; };
 		709E5345B4006353C70BEE42 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = 5FF33B87A537B3CD6BF61EDD /* GoogleSignIn */; };
 		7403AC0F6C90D3E064D82B2E /* BundleEntitlementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 016869DBE48E8D6C375D072C /* BundleEntitlementTests.swift */; };
+		75E998096805FA70F2E93578 /* UITestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 678FC72A777CC660E4BE7ABB /* UITestMode.swift */; };
 		78DE39918821A4FA576B1CEA /* LossCoefficients.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9D35829B798BD3C2EB85D085 /* LossCoefficients.swift */; };
 		7C6C95A986FD34DB6173A6BE /* ShareableResultView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BAE5B9DFF8CA80A9E96F98FE /* ShareableResultView.swift */; };
 		819783E471CA8E51D523904C /* DailyApologyState.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC6B703476A8285361704EBE /* DailyApologyState.swift */; };
@@ -75,7 +76,6 @@
 		9EDE7EAA8F3B432CBD44DF5C /* SageCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D96971D85DC610A9122F3B /* SageCharacterView.swift */; };
 		9FD2FBF09EDDBA2188B170CA /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 465B57BF36E239B6C770F4E4 /* GoogleMobileAds */; };
 		A3D80BE6CE6DBAE3DCBCA418 /* DailyTrainingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257CDDF27D318601A4DEAC0B /* DailyTrainingStatus.swift */; };
-		A418439C8E2A7A1C7B4F764C /* UITestMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = DFDB07CDBB7CC9E2F211B9B5 /* UITestMode.swift */; };
 		A60EE65ADDBA1A5E0E71876A /* RecoveryActionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD0788D36036B7D16CD187F /* RecoveryActionSheet.swift */; };
 		A7E7865CE66BC2487E1AC2A8 /* BundleEntitlementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26A252EC29156E6A51BB0D11 /* BundleEntitlementService.swift */; };
 		AA5307FB2AB6D198D1E57CBB /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 60A4F6CC931FFEA7A737B883 /* Colors.swift */; };
@@ -181,6 +181,7 @@
 		63777E3CF8BD5D390CA58438 /* SGCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SGCard.swift; sourceTree = "<group>"; };
 		64FF6D30755CE49A21A6D973 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		664640A5AE85D8CDA17F9032 /* LiftlyLinkStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiftlyLinkStatus.swift; sourceTree = "<group>"; };
+		678FC72A777CC660E4BE7ABB /* UITestMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UITestMode.swift; sourceTree = "<group>"; };
 		68C2103AC2F8B19ABF8F21B3 /* DailyRecoveryLog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyRecoveryLog.swift; sourceTree = "<group>"; };
 		68D3835E4C92D3CA3858A947 /* SageAdviceCreditsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SageAdviceCreditsStore.swift; sourceTree = "<group>"; };
 		70F9BBFF344964A537360A7F /* DrinkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkType.swift; sourceTree = "<group>"; };
@@ -227,7 +228,6 @@
 		DA6CC1EC5BF3D258F599CF07 /* DrinkReactionOverlay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkReactionOverlay.swift; sourceTree = "<group>"; };
 		DA8C036DBA4FCF3E4CB11921 /* SorryGainsApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SorryGainsApp.swift; sourceTree = "<group>"; };
 		DAC905166BF7A964C598EF59 /* SorryGainsLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SorryGainsLogger.swift; sourceTree = "<group>"; };
-		DFDB07CDBB7CC9E2F211B9B5 /* UITestMode.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UITestMode.swift; sourceTree = "<group>"; };
 		E00FC77E3788AB342D2D39A4 /* WeeklyReportBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeeklyReportBuilder.swift; sourceTree = "<group>"; };
 		E3FDBE034610DCF6A8A439B5 /* MuscleCharacterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MuscleCharacterView.swift; sourceTree = "<group>"; };
 		E57BE2FCAA4E16E89C8BB41F /* AdMobConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobConfig.swift; sourceTree = "<group>"; };
@@ -306,8 +306,7 @@
 				DDF70D936B49C46C1DF041D2 /* Reports */,
 				D57690BFCC9A7A5E11DF1787 /* Sharing */,
 				6643EFF06F2FB09EFE312CD5 /* Subscription */,
-				4636651BE10C9F683A97D4C9 /* UITestMode */,
-				71F3B4568484ECEE04C2B7E1 /* UITestMode */,
+				404C9AB0CC78473C2CF36C4C /* UITestMode */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -357,6 +356,14 @@
 			path = History;
 			sourceTree = "<group>";
 		};
+		404C9AB0CC78473C2CF36C4C /* UITestMode */ = {
+			isa = PBXGroup;
+			children = (
+				678FC72A777CC660E4BE7ABB /* UITestMode.swift */,
+			);
+			path = UITestMode;
+			sourceTree = "<group>";
+		};
 		4575A70B2276B60FAA1BC07F /* Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -386,13 +393,6 @@
 				CB8131E5E4C883A95DDC45CD /* UserProfile.swift */,
 			);
 			path = Models;
-			sourceTree = "<group>";
-		};
-		4636651BE10C9F683A97D4C9 /* UITestMode */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = UITestMode;
 			sourceTree = "<group>";
 		};
 		5036C2FD249EBD67A1BB5BB4 /* Utils */ = {
@@ -458,15 +458,6 @@
 				8C7B628C429DBF8D7EE2EF88 /* SessionReportView.swift */,
 			);
 			path = Session;
-			sourceTree = "<group>";
-		};
-		71F3B4568484ECEE04C2B7E1 /* UITestMode */ = {
-			isa = PBXGroup;
-			children = (
-				DFDB07CDBB7CC9E2F211B9B5 /* UITestMode.swift */,
-			);
-			name = UITestMode;
-			path = UITestMode;
 			sourceTree = "<group>";
 		};
 		74DEADC0C92D1D918062EFDE /* Reactions */ = {
@@ -669,6 +660,8 @@
 				79A5F2225AD2A92AC5975447 /* PBXTargetDependency */,
 			);
 			name = SorryGainsUITests;
+			packageProductDependencies = (
+			);
 			productName = SorryGainsUITests;
 			productReference = 321AFBF65A24F375C70904B7 /* SorryGainsUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -708,6 +701,8 @@
 				2576CABD654DA6AF3C9EA76C /* PBXTargetDependency */,
 			);
 			name = SorryGainsTests;
+			packageProductDependencies = (
+			);
 			productName = SorryGainsTests;
 			productReference = D59FCAF5A7C38A3A00404436 /* SorryGainsTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -722,7 +717,17 @@
 				LastUpgradeCheck = 1600;
 				TargetAttributes = {
 					1597177B3592FE3FCC2F64B9 = {
+						DevelopmentTeam = 992BWJ82JX;
+						ProvisioningStyle = Automatic;
 						TestTargetID = 54E63899F1D617EE3AA39E51;
+					};
+					54E63899F1D617EE3AA39E51 = {
+						DevelopmentTeam = 992BWJ82JX;
+						ProvisioningStyle = Automatic;
+					};
+					701AA4A38E1FB3FBEDA78CD5 = {
+						DevelopmentTeam = 992BWJ82JX;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -876,12 +881,12 @@
 				5ADC8DC684B542DC2DB3C292 /* TrainingSnapshot.swift in Sources */,
 				92970018EDD61FB60B1A8A23 /* TrainingSource.swift in Sources */,
 				3EF5E03B27F83AC9E8CB3625 /* Typography.swift in Sources */,
+				75E998096805FA70F2E93578 /* UITestMode.swift in Sources */,
 				CFD6AACAE984B5D6F978740D /* UnifiedTrainingSnapshot.swift in Sources */,
 				3B7177B3C8298F2ADF12C3F8 /* UserProfile.swift in Sources */,
 				E4215CBEBDCAE81000D6F6BF /* UserProfileRepository.swift in Sources */,
 				8AD78247EF5524E7C421B5BB /* WeeklyReportBuilder.swift in Sources */,
 				3499AC98B8B6F4AE07CCE218 /* WeeklyReportView.swift in Sources */,
-				A418439C8E2A7A1C7B4F764C /* UITestMode.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1004,7 +1009,12 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationPortraitUpsideDown,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1049,9 +1059,11 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = 992BWJ82JX;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1064,7 +1076,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -1110,9 +1122,11 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 7;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = 992BWJ82JX;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
@@ -1131,7 +1145,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
-				MARKETING_VERSION = 1.0.1;
+				MARKETING_VERSION = 1.0.2;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1157,7 +1171,12 @@
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = (
+					UIInterfaceOrientationPortrait,
+					UIInterfaceOrientationPortraitUpsideDown,
+					UIInterfaceOrientationLandscapeLeft,
+					UIInterfaceOrientationLandscapeRight,
+				);
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = UIInterfaceOrientationPortrait;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
