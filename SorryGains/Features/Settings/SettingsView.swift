@@ -284,7 +284,27 @@ struct SettingsView: View {
                     .accessibilityIdentifier("bundleRestoreButton")
                 }
             }
+
+            bundleLegalLinks
         }
+    }
+
+    // 自動更新サブスクリプションに必須の法的リンク（利用規約 / プライバシーポリシー）
+    private var bundleLegalLinks: some View {
+        HStack(spacing: Spacing.md) {
+            Link(
+                String(localized: "bundle.legal.terms"),
+                destination: URL(string: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/")!
+            )
+            Link(
+                String(localized: "bundle.legal.privacy"),
+                destination: URL(string: "https://pro-koya.github.io/sorrygains/privacy/")!
+            )
+            Spacer()
+        }
+        .font(.SG.caption)
+        .foregroundStyle(Color.SG.accent)
+        .accessibilityIdentifier("bundleLegalLinks")
     }
 
     @State private var isBundlePurchasing: Bool = false
