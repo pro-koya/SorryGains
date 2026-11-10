@@ -36,10 +36,10 @@
 | Item | Value |
 |---|---|
 | Version / build | 1.0.3 / 9 |
-| Source main | `340682d7356b32229245c7d7e014a1db9f204c72` |
+| Source main | `f6ea4bd7c2f1cf159fe4f02a4c659e934e55e93f` |
 | Archive | `/Users/koya1104/.cache/koya-build/sorrygains/security-release/SorryGains.xcarchive` |
 | IPA | `/Users/koya1104/.cache/koya-build/sorrygains/security-release/appstore-export/SorryGains.ipa` |
-| IPA SHA256 | `2d653c6082e4d3e1c3a6f60b54d24bd9e22655be9f63eb61ae80e553dd1ac244` |
+| IPA SHA256 | `d785a4a9d065b92db43a59c20d953e9f12da6e81c504b4c6cdc672bcf7ef70e9` |
 | Minimum iOS | 17.0 |
 | Signature | Apple Distribution / Team 992BWJ82JX |
 
@@ -54,6 +54,20 @@ archiveの既存開発署名をもとに、export時にIPAをApple Distribution�
 
 Sandboxはget_sandbox_bundle_statusだけ、Productionはget_bundle_statusだけを読む。verify-bundle-purchaseへのbodyはbundleIdとsignedTransactionのまま、environmentの自己申告は送らない。GET/POSTのresponse.environmentが現在の既知環境と一致した場合だけ共有leaseを反映する。欠落/不明/不一致は共有権利を破棄し、UID/環境変更と同じく古い応答を世代で拒否する。端末のStoreKit検証済み権利はこれらと別に維持する。Sandboxは30秒の再読間隔、本番は5分のcacheを使い、サーバー期限でも失効する。Sandbox権利は本番の有料APIや本番表の権利にはならない。
 
-この変更後の実機/TestFlightでの正常購入・復元、receipt未生成からの再取得、本番/Sandboxの往復は未検証。上記の署名済みarchive/IPAはこの環境分離変更より前の成果物なので、未アップロードの同じversion/buildで再作成してから配布する。この段階で新しい署名build/upload/審査/公開は行っていない。
+この変更後の実機/TestFlightでの正常購入・復元、receipt未生成からの再取得、本番/Sandboxの往復は未検証。環境分離を含む署名済みarchive/IPAは下記の正本helperで同じversion/buildのまま再作成した。upload/審査/公開は行っていない。
 
-環境分離変更の検証: 環境分離・不明/不一致拒否・遅着拒否・ローカル権利維持を含む14試験、および実iOS17 SDK/StoreKit/Supabase moduleを使う選択sourceの型検査を確認。この変更後の全体アプリbuildはまだ行っていない。 採用ログは `/Users/koya1104/.local/state/miyakoya-security/builds/bundle-realm-verification-20261110.log`（0600）。一時試験cacheは整理し、新規に残したsimulator/devserver/watchはない。
+環境分離変更の検証: 環境分離・不明/不一致拒否・遅着拒否・ローカル権利維持を含む14試験、および実iOS17 SDK/StoreKit/Supabase moduleを使う選択sourceの型検査を確認。この後、正本helperによる全体アプリの署名付きarchive/exportも成功した。 採用ログは `/Users/koya1104/.local/state/miyakoya-security/builds/bundle-realm-verification-20261110.log`（0600）。一時試験cacheは整理し、新規に残したsimulator/devserver/watchはない。
+
+
+## 環境分離版の最終再署名
+
+2026-11-10、正本company/security/appstore-prep.mjsでarchive/exportを順番に実行し、上表の候補を環境分離版へ更新した。version/buildは変更せず、実在receipt/AppTransactionと環境別RPCを含むアプリ全体をコンパイルした。署名処理・ログadapterの正本commitは `5119039195d7caa0e36d8c8b1dc490fbd95c7802`。Forgeのexportもこの修正版で再実行し、古い途中IPAは採用していない。
+
+- archiveの署名と、IPAを毎回新しく展開した現在のPayloadのApple Distribution署名（Apple anchor/Team OU）を検証した。古い展開Payloadは再利用していない。
+- appstore-archive-source.jsonのsourceと署名対象source SHAの一致、bundle ID・version/build・最低OS、get-task-allow=false、期限内のApp Store profile、destination=exportを確認した。
+- 現在IPAの実バイナリ内でSandbox用RPCを確認した。Liftlyではnative購入環境channelも確認した。IPA内にprivate .p8がないことを確認した。
+- Xcode内部診断と固定export直下の11ファイルを最終再走査し、各候補でJWT/private PEM/明示literalの残数0を確認した。採用archive/exportログも0600で、同じ秘密の残数0。raw行は保存せず、IPAとarchiveの中身は伏字処理で変更していない。
+
+検証記録: `/Users/koya1104/.cache/koya-build/sorrygains/security-release/appstore-export/verification.json`。署名source provenance: `/Users/koya1104/.cache/koya-build/sorrygains/security-release/appstore-archive-source.json`。採用ログ: `/Users/koya1104/.local/state/miyakoya-security/builds/sorrygains-archive.log` と `sorrygains-export.log`。archive/IPAは.disk-guard-keep付きで保持する。
+
+この候補はローカルでの配布準備まで。実購入・restore・審査環境の全通し確認、App Storeへのupload/processing/審査提出/公開はこの作業では実施していない。
