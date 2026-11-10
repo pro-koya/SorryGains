@@ -1,8 +1,18 @@
 import Foundation
 
+enum BundlePurchaseEnvironment: String {
+    case production = "Production"
+    case sandbox = "Sandbox"
+
+    var statusRPC: String {
+        self == .sandbox ? "get_sandbox_bundle_status" : "get_bundle_status"
+    }
+}
+
 /// StoreKit の端末権利と、ログイン中の本人に属するサーバー権利を分けて扱う。
 struct BundleAccessState {
     private(set) var userID: UUID?
+    private(set) var environment: BundlePurchaseEnvironment?
     private(set) var localExpiresAt: Date?
     private(set) var serverExpiresAt: Date?
     private var requestGeneration = 0
@@ -11,6 +21,13 @@ struct BundleAccessState {
         guard self.userID != userID else { return }
         requestGeneration += 1
         self.userID = userID
+        serverExpiresAt = nil
+    }
+
+    mutating func changeEnvironment(to environment: BundlePurchaseEnvironment?) {
+        guard self.environment != environment else { return }
+        requestGeneration += 1
+        self.environment = environment
         serverExpiresAt = nil
     }
 
@@ -27,9 +44,9 @@ struct BundleAccessState {
         requestGeneration == generation
     }
 
-    mutating func updateServer(active: Bool, expiresAt: Date?, for userID: UUID, request: Int) {
+    mutating func updateServer(active: Bool, expiresAt: Date?, for userID: UUID, request: Int, environment: BundlePurchaseEnvironment?) {
         guard self.userID == userID, isCurrentRequest(request) else { return }
-        serverExpiresAt = active ? expiresAt : nil
+        serverExpiresAt = active && self.environment != nil && self.environment == environment ? expiresAt : nil
     }
 
     static func localExpiration(

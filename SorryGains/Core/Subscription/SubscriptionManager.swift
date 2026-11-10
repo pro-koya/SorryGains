@@ -148,17 +148,16 @@ final class SubscriptionManager {
     }
 
     func refreshBundleStatus(forceRefresh: Bool = false) async {
-        synchronizeUser()
-        guard let userID = access.userID else { return }
+        guard let context = await prepareServerContext() else { return }
+        let (userID, environment, generation) = context
         if !forceRefresh, let lastServerCheck,
-           Date().timeIntervalSince(lastServerCheck) < Self.serverCacheTTL { return }
-        let generation = access.beginRequest()
+           Date().timeIntervalSince(lastServerCheck) < (environment == .sandbox ? 30 : Self.serverCacheTTL) { return }
         do {
             let response: BundleStatusResponse = try await client
-                .rpc("get_bundle_status").execute().value
+                .rpc(environment.statusRPC).execute().value
             guard access.isCurrentRequest(generation),
                   client.auth.currentUser?.id == userID else { return }
-            applyServer(response, userID: userID, generation: generation)
+            applyServer(response, userID: userID, environment: environment, generation: generation)
         } catch {
             log.warning("bundle status lookup failed")
         }
@@ -181,8 +180,8 @@ final class SubscriptionManager {
     private func recordSignedPurchase(_ proof: String) async {
         do {
             let session = try await client.auth.session
-            synchronizeUser()
-            let generation = access.beginRequest()
+            guard let (userID, environment, generation) = await prepareServerContext(),
+                  userID == session.user.id else { return }
             let response: BundleStatusResponse = try await client.functions.invoke(
                 "verify-bundle-purchase",
                 options: FunctionInvokeOptions(
@@ -192,7 +191,7 @@ final class SubscriptionManager {
             )
             guard access.isCurrentRequest(generation),
                   client.auth.currentUser?.id == session.user.id else { return }
-            applyServer(response, userID: session.user.id, generation: generation)
+            applyServer(response, userID: session.user.id, environment: environment, generation: generation)
         } catch {
             // 旧購入/家族共有/別アカウントは共有を保留。JWSやサーバーの生エラーは記録しない。
             log.warning("bundle purchase sharing not confirmed")
@@ -200,12 +199,53 @@ final class SubscriptionManager {
         }
     }
 
-    private func applyServer(_ response: BundleStatusResponse, userID: UUID, generation: Int) {
+    /// OS evidence chooses only which isolated sharing realm to read; the server verifies the purchase independently.
+    private func prepareServerContext() async -> (UUID, BundlePurchaseEnvironment, Int)? {
         synchronizeUser()
-        guard access.userID == userID, access.isCurrentRequest(generation) else { return }
+        guard access.userID != nil else { return nil }
+        let lookup = access.beginRequest()
+        let environment = await Self.purchaseEnvironment()
+        guard access.isCurrentRequest(lookup) else { return nil }
+        synchronizeUser()
+        guard access.isCurrentRequest(lookup) else { return nil }
+        if access.environment != environment {
+            access.changeEnvironment(to: environment)
+            lastServerCheck = nil
+            updateAccess()
+        }
+        guard let userID = access.userID, let environment else { return nil }
+        return (userID, environment, access.beginRequest())
+    }
+
+    private static func purchaseEnvironment() async -> BundlePurchaseEnvironment? {
+        do {
+            let result = try await AppTransaction.shared
+            guard case .verified(let transaction) = result else { return nil }
+            switch transaction.environment {
+            case .production: return .production
+            case .sandbox: return .sandbox
+            default: return nil
+            }
+        } catch {
+            // A missing sandbox receipt is not evidence of Production. Retry on the next refresh/purchase/restore.
+            guard let receipt = Bundle.main.appStoreReceiptURL,
+                  FileManager.default.fileExists(atPath: receipt.path) else { return nil }
+            switch receipt.lastPathComponent {
+            case "sandboxReceipt": return .sandbox
+            case "receipt": return .production
+            default: return nil
+            }
+        }
+    }
+
+    private func applyServer(_ response: BundleStatusResponse, userID: UUID,
+                             environment: BundlePurchaseEnvironment, generation: Int) {
+        synchronizeUser()
+        guard access.userID == userID, access.environment == environment, access.isCurrentRequest(generation) else { return }
         let expiry = response.bundleExpiresAt.map { Date(timeIntervalSince1970: Double($0)) }
-        access.updateServer(active: response.bundleActive, expiresAt: expiry, for: userID, request: generation)
-        lastServerCheck = Date()
+        access.updateServer(active: response.bundleActive, expiresAt: expiry, for: userID, request: generation,
+                            environment: response.environment.flatMap(BundlePurchaseEnvironment.init(rawValue:)))
+        lastServerCheck = response.environment == environment.rawValue ? Date() : nil
         updateAccess()
     }
 
@@ -258,10 +298,10 @@ final class SubscriptionManager {
         Task { [weak self] in
             while !Task.isCancelled {
                 do {
-                    try await Task.sleep(for: .seconds(Self.serverCacheTTL))
+                    try await Task.sleep(for: .seconds(30))
                 } catch { return }
                 guard let self else { return }
-                await self.refreshBundleStatus(forceRefresh: true)
+                await self.refreshBundleStatus()
             }
         }
     }
@@ -280,12 +320,14 @@ private struct VerifyBundlePurchaseRequest: Encodable {
 }
 
 private struct BundleStatusResponse: Decodable {
+    let environment: String?
     let bundleActive: Bool
     let bundleProductId: String?
     let bundleExpiresAt: Int?
     let checkedAt: Int
 
     enum CodingKeys: String, CodingKey {
+        case environment
         case bundleActive = "bundle_active"
         case bundleProductId = "bundle_product_id"
         case bundleExpiresAt = "bundle_expires_at"

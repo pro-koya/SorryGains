@@ -4,7 +4,7 @@
 
 - 新規バンドル購入はログイン後に開始し、Supabase UUIDをAppleのappAccountTokenへ渡す。
 - `verify-bundle-purchase` Edgeへ、利用者のBearer sessionと `{bundleId, signedTransaction}` だけを送る。JWS/トークン/利用者ID/サーバー生エラーをログへ出さない。
-- サーバー共有はProductionの購入だけが対象。署名・アプリ/商品・購入者・appAccountToken一致・Apple最新状態をサーバーで照合する。Sandbox/StoreKit Testは端末のローカル権利だけで検証する。
+- ProductionとSandboxのサーバー共有は別realmとする。署名・アプリ/商品・購入者・appAccountToken一致・Apple最新状態をサーバーで照合し、署名で確定した環境だけで保存先を決める。StoreKit Testは端末のローカル権利だけで検証する。
 - tokenがない旧購入、別アカウント、家族共有は自動で紐付けない。端末の有効な購入は維持する。旧購入の共有には所有者を確認する別の移行手続きが必要で、復元だけではappAccountTokenが遡って付かない。取引IDだけで移管しない。
 - サーバー共有は本人・有限期限付き。サーバーの期限はApple期限と再検証lease（最大30分）の短い方。アカウント変更/ログアウトで共有状態を破棄し、期限でも失効する。GET/POST共通の送信前世代により古い応答を破棄する。
 - ローカルStoreKitは検証済みtransactionの期限を使う。AppleのinGracePeriodは同じoriginalIDの検証済みtransaction/renewalInfoからgracePeriodExpirationDateを取り、自己加算しない。サーバーのfalseで端末の有効な購入を消さない。
@@ -46,3 +46,14 @@
 archiveの既存開発署名をもとに、export時にIPAをApple Distributionへ再署名した。IPAを展開して `codesign --verify --deep --strict` とApple anchor/Team OU要件を確認。get-task-allow=false、App Store profile（端末リスト/全端末配布なし、beta-reports-active=true、有効期限内）、bundle ID・version/build・最低OSの一致を確認した。ExportOptionsはdestination=export、manageAppVersionAndBuildNumber=false。実機の正規購入/restore・更新/返金・アカウント切替の全通し、App Storeへのupload/審査/公開は未実施。
 
 採用ログとexportのPackaging.logにJWTやprivate keyの値を残さない。Xcodeが内部配布ログへ自動記録する一時JWTも、終了直後に走査・伏字化した。archive/IPAはdisk-guardで消されないよう各フォルダに.disk-guard-keepを置き、公開が承認されるまで保持する。
+
+
+## Sandbox配布QAの環境分離（署名候補の再作成前）
+
+クライアントはOSの購入環境を毎回確認する。iOS 16以上はStoreKitの検証済みAppTransaction.environmentを優先し、取得に失敗した場合（iOS 15では常に）は実在するApp Store receiptのファイル名を使う。sandboxReceiptはSandbox、receiptはProduction、それ以外・未生成・未検証は不明。Xcode環境も共有は付けない。不明なら端末購入を維持したまま、次の起動/復帰・定期更新・購入/復元で再取得する。自動で認証promptを出す強制refreshはしない。LiftlyはiOS native MethodChannel経由で同じ判定を渡す。Androidの新バンドル購入停止は継続する。
+
+Sandboxはget_sandbox_bundle_statusだけ、Productionはget_bundle_statusだけを読む。verify-bundle-purchaseへのbodyはbundleIdとsignedTransactionのまま、environmentの自己申告は送らない。GET/POSTのresponse.environmentが現在の既知環境と一致した場合だけ共有leaseを反映する。欠落/不明/不一致は共有権利を破棄し、UID/環境変更と同じく古い応答を世代で拒否する。端末のStoreKit検証済み権利はこれらと別に維持する。Sandboxは30秒の再読間隔、本番は5分のcacheを使い、サーバー期限でも失効する。Sandbox権利は本番の有料APIや本番表の権利にはならない。
+
+この変更後の実機/TestFlightでの正常購入・復元、receipt未生成からの再取得、本番/Sandboxの往復は未検証。上記の署名済みarchive/IPAはこの環境分離変更より前の成果物なので、未アップロードの同じversion/buildで再作成してから配布する。この段階で新しい署名build/upload/審査/公開は行っていない。
+
+環境分離変更の検証: 環境分離・不明/不一致拒否・遅着拒否・ローカル権利維持を含む14試験、および実iOS17 SDK/StoreKit/Supabase moduleを使う選択sourceの型検査を確認。この変更後の全体アプリbuildはまだ行っていない。 採用ログは `/Users/koya1104/.local/state/miyakoya-security/builds/bundle-realm-verification-20261110.log`（0600）。一時試験cacheは整理し、新規に残したsimulator/devserver/watchはない。
