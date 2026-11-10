@@ -39,6 +39,7 @@
 		42D14D592D451B3651A3AF2D /* PersistenceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E98148D1EB91BFB04CEBAE13 /* PersistenceTests.swift */; };
 		435CB395AD829A94D56908AC /* SubscriptionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 454AB7F01AC02233C4EDD885 /* SubscriptionManager.swift */; };
 		43C2F8541ED1FB3199CB64C2 /* AdMobConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = E57BE2FCAA4E16E89C8BB41F /* AdMobConfig.swift */; };
+		4836B0F4EE2186FCADD21047 /* BundleAccessStateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7EF9D4933BF451D814017777 /* BundleAccessStateTests.swift */; };
 		4AF5A17A884822BA54AFC55D /* DailyImpactCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C4BC9497A20CD81557673DB /* DailyImpactCalculator.swift */; };
 		4CD091CB230352B2DC55DFA0 /* BundlePurchaseFlowUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26C766524B1988C47F56EC15 /* BundlePurchaseFlowUITests.swift */; };
 		4D56327D7CC12B75BB4071DD /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64FF6D30755CE49A21A6D973 /* Assets.xcassets */; };
@@ -75,6 +76,7 @@
 		9BBE228E53BB762EB2EBEE3D /* SupabaseConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EB72C15D18A65203AAF4792 /* SupabaseConfig.swift */; };
 		9EDE7EAA8F3B432CBD44DF5C /* SageCharacterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = D0D96971D85DC610A9122F3B /* SageCharacterView.swift */; };
 		9FD2FBF09EDDBA2188B170CA /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 465B57BF36E239B6C770F4E4 /* GoogleMobileAds */; };
+		A07631754114B46F1696F060 /* BundleAccessState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A47921C1104297742E41FD67 /* BundleAccessState.swift */; };
 		A3D80BE6CE6DBAE3DCBCA418 /* DailyTrainingStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 257CDDF27D318601A4DEAC0B /* DailyTrainingStatus.swift */; };
 		A60EE65ADDBA1A5E0E71876A /* RecoveryActionSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFD0788D36036B7D16CD187F /* RecoveryActionSheet.swift */; };
 		A7E7865CE66BC2487E1AC2A8 /* BundleEntitlementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26A252EC29156E6A51BB0D11 /* BundleEntitlementService.swift */; };
@@ -188,6 +190,7 @@
 		731CFB081B748455A56D6CFA /* Spacing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Spacing.swift; sourceTree = "<group>"; };
 		73841815E0C68450E13759AB /* CharacterSpeechView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CharacterSpeechView.swift; sourceTree = "<group>"; };
 		7C27C558888B01B8AC17BBCC /* AppEnvironment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppEnvironment.swift; sourceTree = "<group>"; };
+		7EF9D4933BF451D814017777 /* BundleAccessStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleAccessStateTests.swift; sourceTree = "<group>"; };
 		7FCF844A3D476FC986229EF3 /* SagePromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SagePromptBuilder.swift; sourceTree = "<group>"; };
 		8188A56C1E9C8F10C9E47BF5 /* TrainingGoal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingGoal.swift; sourceTree = "<group>"; };
 		8432CAC2155227F24BAEAF0B /* TrainingSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSnapshot.swift; sourceTree = "<group>"; };
@@ -209,6 +212,7 @@
 		A0224866F9EE3E72709A5B20 /* SageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SageView.swift; sourceTree = "<group>"; };
 		A225F7CC6B40F78A37747750 /* DrinkRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkRecord.swift; sourceTree = "<group>"; };
 		A323EBF7C05C8AA7B27B367B /* AdBannerSlot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdBannerSlot.swift; sourceTree = "<group>"; };
+		A47921C1104297742E41FD67 /* BundleAccessState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BundleAccessState.swift; sourceTree = "<group>"; };
 		A5E0D767DAF1D85F0F619329 /* DrinkReactionProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrinkReactionProvider.swift; sourceTree = "<group>"; };
 		AC6B703476A8285361704EBE /* DailyApologyState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyApologyState.swift; sourceTree = "<group>"; };
 		AFCFE14A3865BA99BD7C121B /* AchievementListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AchievementListView.swift; sourceTree = "<group>"; };
@@ -425,6 +429,7 @@
 		6643EFF06F2FB09EFE312CD5 /* Subscription */ = {
 			isa = PBXGroup;
 			children = (
+				A47921C1104297742E41FD67 /* BundleAccessState.swift */,
 				26A252EC29156E6A51BB0D11 /* BundleEntitlementService.swift */,
 				DAC905166BF7A964C598EF59 /* SorryGainsLogger.swift */,
 				454AB7F01AC02233C4EDD885 /* SubscriptionManager.swift */,
@@ -633,6 +638,7 @@
 		F647B74C279E796DFD9076AA /* SorryGainsTests */ = {
 			isa = PBXGroup;
 			children = (
+				7EF9D4933BF451D814017777 /* BundleAccessStateTests.swift */,
 				016869DBE48E8D6C375D072C /* BundleEntitlementTests.swift */,
 				587CDD5083F19C2258D16E3B /* CalculationTests.swift */,
 				1ED159E1236EF3CF7D5F063D /* DailyImpactCalculatorTests.swift */,
@@ -809,6 +815,7 @@
 				5452F640309DE0ABD8158536 /* ApologyResult.swift in Sources */,
 				E2AB2F04D75DE1FFAB787300 /* AppEnvironment.swift in Sources */,
 				E82A65586717B1E6129AACF4 /* AuthService.swift in Sources */,
+				A07631754114B46F1696F060 /* BundleAccessState.swift in Sources */,
 				A7E7865CE66BC2487E1AC2A8 /* BundleEntitlementService.swift in Sources */,
 				B2930B235A681CDC938C155E /* CharacterNotificationManager.swift in Sources */,
 				23C964DB5CA6112E10D74270 /* CharacterSpeechView.swift in Sources */,
@@ -902,6 +909,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4836B0F4EE2186FCADD21047 /* BundleAccessStateTests.swift in Sources */,
 				7403AC0F6C90D3E064D82B2E /* BundleEntitlementTests.swift in Sources */,
 				FBBA3BFB515E2EE3D2D0A65E /* CalculationTests.swift in Sources */,
 				0F65007C99A49A318F835F29 /* DailyImpactCalculatorTests.swift in Sources */,

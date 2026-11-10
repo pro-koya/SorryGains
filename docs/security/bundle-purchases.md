@@ -17,8 +17,14 @@
 
 ## 配布前に残る確認
 
-全アプリのRelease build、既存全テスト、実機での購入・復元・返金・アカウント切替・家族共有の正常往復と画面確認は、この選択モジュール試験だけでは検証していない。App Storeへのupload、審査提出、公開は未実施。配布されるまで旧アプリの横断同期は再開しない。
+既存全テスト、実機での購入・復元・返金・アカウント切替・家族共有の正常往復と画面確認は、この選択モジュール試験だけでは検証していない。App Storeへのupload、審査提出、公開は未実施。配布されるまで旧アプリの横断同期は再開しない。
 
 リポジトリ全体で `xcodegen generate` を実行し、新しいCore/SubscriptionとTestsをプロジェクトへ取り込む。`project.yml`を正本とし、生成済みxcodeprojを手で編集しない。`xcodebuild -scheme SorryGains -configuration Release -destination 'generic/platform=iOS' CODE_SIGNING_ALLOWED=NO -derivedDataPath ~/.cache/koya-build/SorryGains/security-release build` で署名なしビルドを検証後、既存リリース手順で署名/配布する。
 
 参照: [Apple VerificationResult](https://developer.apple.com/documentation/storekit/verificationresult)、[Supabase Swift Functions](https://supabase.com/docs/reference/swift/functions-invoke)、[Flutter StoreKit JWS](https://pub.dev/packages/in_app_purchase_storekit/changelog)。
+
+## 署名なし全体ビルドの実測
+
+2026-11-10、source main `5c3bf8aba66b2a55a362f5f03a3502837002cc1c` からXcodeGenで生成し、Xcode 27.2 / arm64 iOS / Release / CODE_SIGNING_ALLOWED=NOのアプリ全体buildが成功（BUILD SUCCEEDED）。新しいCore stateも含む。App Storeへのupload/審査/公開は行っていない。選択モジュールの各10試験も成功したが、アプリ全体の既存テスト・UI・実購入/復元の正常往復は未検証。
+
+既存のCharacterSpeechView（Combineの直接import）、OnboardingContainerView（SwiftDataの直接import）、SageContextBuilder（非推奨initializer）のSwift警告、GoogleAds dSYM stubとAppIntentsの警告が残る。今回の購入state/managerにはコンパイル警告なし。tracked xcodeprojはXcodeGenで新しいstate/testの参照8行だけを追加し、手編集していない。
