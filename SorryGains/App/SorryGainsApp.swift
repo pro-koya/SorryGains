@@ -60,15 +60,12 @@ struct SorryGainsApp: App {
                 }
                 .onChange(of: authService.isSignedIn) { _, isSignedIn in
                     trainingDataService.updateLinkStatus(isSignedIn: isSignedIn)
-                    if isSignedIn {
-                        // サインイン後にバンドル状態を再取得
-                        Task {
-                            await bundleEntitlementService.refresh(
-                                subscriptionManager: subscriptionManager,
-                                forceRefresh: true
-                            )
-                        }
-                    }
+                }
+                .task(id: authService.currentUserId) {
+                    subscriptionManager.accountDidChange()
+                    await bundleEntitlementService.refresh(
+                        subscriptionManager: subscriptionManager, forceRefresh: true
+                    )
                 }
                 .task {
                     if isUsingInMemoryStore {

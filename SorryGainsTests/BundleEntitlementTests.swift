@@ -194,21 +194,26 @@ struct SubscriptionManagerPurchaseStateTests {
         #expect(manager.isBundleActive == false)
     }
 
-    // ケース 2: updateBundleActive(true) で isBundleActive が true になる
-    @Test("updateBundleActive sets isBundleActive to true")
-    func updateBundleActiveToTrue() async {
-        let manager = SubscriptionManager()
-        manager.updateBundleActive(true)
-        #expect(manager.isBundleActive == true)
+    @Test("server access requires a finite expiration")
+    func serverAccessNeedsExpiration() {
+        var access = BundleAccessState()
+        let userID = UUID()
+        access.changeUser(to: userID)
+        let request = access.beginRequest()
+        access.updateServer(active: true, expiresAt: nil, for: userID, request: request)
+        #expect(!access.isActive(at: Date()))
     }
 
-    // ケース 3: updateBundleActive(false) で isBundleActive が false に戻る
-    @Test("updateBundleActive resets isBundleActive to false")
-    func updateBundleActiveToFalse() async {
-        let manager = SubscriptionManager()
-        manager.updateBundleActive(true)
-        manager.updateBundleActive(false)
-        #expect(manager.isBundleActive == false)
+    @Test("inactive server response keeps a valid local purchase")
+    func inactiveServerKeepsLocalPurchase() {
+        var access = BundleAccessState()
+        let userID = UUID()
+        let now = Date()
+        access.changeUser(to: userID)
+        let request = access.beginRequest()
+        access.updateLocal(expiresAt: now.addingTimeInterval(60))
+        access.updateServer(active: false, expiresAt: nil, for: userID, request: request)
+        #expect(access.isActive(at: now))
     }
 
     // ケース 4: プロダクト未取得時は月額表示文字列が空文字

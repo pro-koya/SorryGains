@@ -2,297 +2,294 @@ import Foundation
 import StoreKit
 import Supabase
 
-// MARK: - SubscriptionManager (SorryGains)
-//
-// SorryGains は単独サブスクなし。バンドル限定 Pro 機能のみ。
-// Supabase RPC `get_bundle_status` でバンドル加入を確認し、
-// StoreKit 2 で実際の購入フローを提供する。
-//
-// 商品 ID:
-//   com.sorrygains.bundle.pro.monthly  - バンドル月額 ¥250
-//   com.sorrygains.bundle.pro.yearly   - バンドル年額 ¥2,500
-//
-// 参照:
-//   - Forge/SubscriptionManager.swift（設計パターン共通）
-//   - Supabase: bundle_status.sql
-
+/// ローカルの検証済み購入と、本人に紐付いたアプリ間共有を管理する。
 @Observable
 @MainActor
 final class SubscriptionManager {
-
-    // MARK: - State
-
-    /// バンドルが有効かどうか（Supabase + StoreKit の OR 判定）。
-    private(set) var isBundleActive: Bool = false
-
-    /// 取得済みの購入可能なプロダクト一覧。
     private(set) var products: [Product] = []
-
-    /// プロダクトロード中かどうか。
-    private(set) var isLoading: Bool = false
-
-    /// 購入処理中かどうか。
-    private(set) var isPurchasing: Bool = false
-
-    /// エラーメッセージ（UI 表示用）。
+    private(set) var isBundleActive = false
+    private(set) var isLoading = false
+    private(set) var isPurchasing = false
     private(set) var errorMessage: String?
-
-    // MARK: - Product IDs
 
     static let bundleProductIdentifiers: Set<String> = [
         "com.sorrygains.bundle.pro.monthly",
         "com.sorrygains.bundle.pro.yearly"
     ]
-
-    // MARK: - Private
+    static let productIdentifiers = bundleProductIdentifiers
+    private static let bundleID = "com.sorrygains.SorryGains"
+    private static let serverCacheTTL: TimeInterval = 5 * 60
 
     private let client: SupabaseClient
     private let log = SorryGainsLogger(category: "Subscription")
+    private var access = BundleAccessState()
+    private var lastServerCheck: Date?
+    private var entitlementGeneration = 0
     private var transactionListener: Task<Void, Never>?
-
-    // MARK: - Init
+    private var expiryTask: Task<Void, Never>?
+    private var refreshTask: Task<Void, Never>?
 
     init(client: SupabaseClient = SupabaseConfig.client) {
         self.client = client
+
         transactionListener = listenForTransactions()
+        refreshTask = periodicallyRefreshServer()
         Task {
             await loadProducts()
             await refreshEntitlements()
+            await refreshBundleStatus()
         }
     }
 
-    // transactionListener は Task で管理。deinit での cancel は MainActor 制約で不可のため
-    // listenForTransactions() 内の [weak self] ガードで自動解放される。
-
-    // MARK: - Products
-
-    /// App Store からバンドルプロダクト情報を取得する。
     func loadProducts() async {
         guard !isLoading else { return }
         isLoading = true
-        errorMessage = nil
         defer { isLoading = false }
-
         do {
-            let fetched = try await Product.products(for: Self.bundleProductIdentifiers)
-            products = fetched.sorted { $0.price < $1.price }
-            log.info("loaded \(products.count) bundle products")
+            products = try await Product.products(for: Self.productIdentifiers)
+                .sorted { $0.price < $1.price }
         } catch {
-            log.error("loadProducts failed: \(error.localizedDescription)")
-            // App Store Connect に商品が無い場合でもアプリは継続動作させる
+            log.warning("product lookup failed")
             errorMessage = "サブスクリプション情報の取得に失敗しました。"
         }
     }
 
-    // MARK: - Purchase
-
-    /// バンドル月額を購入する。成功時は isBundleActive が更新される。
     @discardableResult
     func purchaseBundleMonthly() async -> Bool {
-        guard let product = products.first(where: {
-            $0.id == "com.sorrygains.bundle.pro.monthly"
-        }) else {
-            errorMessage = "商品が見つかりません。"
-            return false
-        }
-        return await purchase(product: product)
+        await purchaseProduct(id: "com.sorrygains.bundle.pro.monthly")
     }
 
-    /// バンドル年額を購入する。成功時は isBundleActive が更新される。
     @discardableResult
     func purchaseBundleYearly() async -> Bool {
-        guard let product = products.first(where: {
-            $0.id == "com.sorrygains.bundle.pro.yearly"
-        }) else {
+        await purchaseProduct(id: "com.sorrygains.bundle.pro.yearly")
+    }
+
+    private func purchaseProduct(id: String) async -> Bool {
+        guard let product = products.first(where: { $0.id == id }) else {
             errorMessage = "商品が見つかりません。"
             return false
         }
         return await purchase(product: product)
     }
 
-    /// 任意のバンドルプロダクトを購入する。
     @discardableResult
     func purchase(product: Product) async -> Bool {
-        guard !isPurchasing else { return false }
+        guard !isPurchasing, Self.bundleProductIdentifiers.contains(product.id) else { return false }
         isPurchasing = true
         errorMessage = nil
         defer { isPurchasing = false }
-
+        let session: Session
         do {
-            let result = try await product.purchase()
-            switch result {
-            case .success(let verification):
-                let transaction = try checkVerified(verification)
-                await transaction.finish()
-                await refreshEntitlements()
-                await recordPurchaseInSupabase(transaction: transaction)
-                log.info("purchased bundle: \(product.id)")
-                return true
-
-            case .userCancelled:
-                return false
-
-            case .pending:
-                errorMessage = "保護者承認等の確認待ちです。"
-                return false
-
-            @unknown default:
-                return false
-            }
+            session = try await client.auth.session
         } catch {
-            log.error("purchase failed: \(error.localizedDescription)")
+            errorMessage = "バンドルを購入する前にログインしてください。"
+            return false
+        }
+        do {
+            let result = try await product.purchase(options: [.appAccountToken(session.user.id)])
+            return try await handlePurchaseResult(result)
+        } catch {
+            log.warning("purchase verification failed")
             errorMessage = "購入に失敗しました。"
             return false
         }
     }
 
-    /// 別端末での購入を復元する。
+    private func handlePurchaseResult(_ result: Product.PurchaseResult) async throws -> Bool {
+        switch result {
+        case .success(let verification):
+            let transaction = try checkVerified(verification)
+            await recordSignedPurchase(verification.jwsRepresentation)
+            await transaction.finish()
+            await refreshEntitlements()
+            return true
+        case .userCancelled:
+            return false
+        case .pending:
+            errorMessage = "保護者承認等の確認待ちです。"
+            return false
+        @unknown default:
+            return false
+        }
+    }
+
     func restore() async {
         do {
             try await AppStore.sync()
             await refreshEntitlements()
-            log.info("restore completed")
+            await refreshBundleStatus(forceRefresh: true)
         } catch {
-            log.error("restore failed: \(error.localizedDescription)")
+            log.warning("purchase restore failed")
             errorMessage = "復元に失敗しました。"
         }
     }
 
-    // MARK: - Bundle Status from Supabase
+    /// 端末に有効な購入がある場合、共有の保留や通信障害で端末権利を消さない。
+    func refreshEntitlements() async {
+        entitlementGeneration += 1
+        let generation = entitlementGeneration
+        var expiresAt: Date?
+        var proofs: [String] = []
+        for await result in Transaction.currentEntitlements {
+            guard case .verified(let transaction) = result,
+                  Self.bundleProductIdentifiers.contains(transaction.productID),
+                  transaction.revocationDate == nil, !transaction.isUpgraded,
+                  let expiry = await localExpiration(for: transaction) else { continue }
+            expiresAt = max(expiresAt ?? expiry, expiry)
+            proofs.append(result.jwsRepresentation)
+        }
+        guard generation == entitlementGeneration else { return }
+        synchronizeUser()
+        access.updateLocal(expiresAt: expiresAt)
+        updateAccess()
+        for proof in proofs {
+            await recordSignedPurchase(proof)
+        }
+    }
 
-    /// Supabase RPC `get_bundle_status` からバンドル加入状況を取得して更新する。
-    func refreshBundleStatus() async {
+    func refreshBundleStatus(forceRefresh: Bool = false) async {
+        synchronizeUser()
+        guard let userID = access.userID else { return }
+        if !forceRefresh, let lastServerCheck,
+           Date().timeIntervalSince(lastServerCheck) < Self.serverCacheTTL { return }
+        let generation = access.beginRequest()
         do {
             let response: BundleStatusResponse = try await client
-                .rpc("get_bundle_status")
-                .execute()
-                .value
-
-            isBundleActive = response.bundleActive
-            log.info("bundle status refreshed: active=\(response.bundleActive)")
+                .rpc("get_bundle_status").execute().value
+            guard access.isCurrentRequest(generation),
+                  client.auth.currentUser?.id == userID else { return }
+            applyServer(response, userID: userID, generation: generation)
         } catch {
-            // 未サインイン or ネットワークエラーは無視（既存状態を維持）
-            log.warning("bundle status refresh failed: \(error.localizedDescription)")
+            log.warning("bundle status lookup failed")
         }
     }
 
-    // MARK: - StoreKit Entitlement (補完)
-
-    /// StoreKit のエンタイトルメントを確認してバンドル状態を補完する。
-    /// App Store 購入直後など、Supabase より StoreKit が先に更新される場合に使う。
-    func refreshEntitlements() async {
-        var hasBundle = false
-        var revokedProductID: String?
-        var revokedTransactionID: String?
-
-        for await result in Transaction.currentEntitlements {
-            do {
-                let transaction = try checkVerified(result)
-                if Self.bundleProductIdentifiers.contains(transaction.productID) {
-                    if transaction.revocationDate != nil {
-                        // 返金・取り消し済み
-                        revokedProductID = transaction.productID
-                        revokedTransactionID = String(transaction.originalID)
-                    } else {
-                        hasBundle = true
-                    }
-                }
-            } catch {
-                log.warning("entitlement verification failed: \(error.localizedDescription)")
-            }
-        }
-
-        if hasBundle {
-            isBundleActive = true
-        } else if let _ = revokedProductID {
-            // 返金・取り消しを検出したとき Supabase を更新し、ローカル状態もクリア
-            isBundleActive = false
-            await clearBundleStatusInSupabase()
-        }
+    /// サインアウト/アカウント切替時に、前の利用者の共有状態だけを即時破棄する。
+    func accountDidChange() {
+        synchronizeUser()
+        updateAccess()
     }
 
-    /// 外部から直接バンドル状態を更新する（BundleEntitlementService 経由）。
-    func updateBundleActive(_ active: Bool) {
-        isBundleActive = active
+    private func synchronizeUser() {
+        let userID = client.auth.currentUser?.id
+        guard access.userID != userID else { return }
+        access.changeUser(to: userID)
+        lastServerCheck = nil
+        updateAccess()
     }
 
-    // MARK: - Supabase RPC Helpers
-
-    /// 購入成功後に Supabase RPC `record_bundle_purchase` を呼び出す。
-    /// RPC エラーは fail soft（ログ記録のみ、クラッシュしない）。
-    private func recordPurchaseInSupabase(transaction: Transaction) async {
-        let expiresAt: Int
-        if let expirationDate = transaction.expirationDate {
-            expiresAt = Int(expirationDate.timeIntervalSince1970)
-        } else {
-            expiresAt = Int(Date().addingTimeInterval(60 * 60 * 24 * 30).timeIntervalSince1970)
-        }
-
+    private func recordSignedPurchase(_ proof: String) async {
         do {
-            let _: BundleStatusResponse = try await client
-                .rpc(
-                    "record_bundle_purchase",
-                    params: RecordBundlePurchaseParams(
-                        pProductId: transaction.productID,
-                        pExpiresAt: expiresAt,
-                        pOriginalTransactionId: String(transaction.originalID)
-                    )
+            let session = try await client.auth.session
+            synchronizeUser()
+            let generation = access.beginRequest()
+            let response: BundleStatusResponse = try await client.functions.invoke(
+                "verify-bundle-purchase",
+                options: FunctionInvokeOptions(
+                    headers: ["Authorization": "Bearer \(session.accessToken)"],
+                    body: VerifyBundlePurchaseRequest(bundleId: Self.bundleID, signedTransaction: proof)
                 )
-                .execute()
-                .value
-            log.info("recorded bundle purchase in Supabase: \(transaction.productID)")
+            )
+            guard access.isCurrentRequest(generation),
+                  client.auth.currentUser?.id == session.user.id else { return }
+            applyServer(response, userID: session.user.id, generation: generation)
         } catch {
-            // fail soft: RPC エラーはログのみ。StoreKit エンタイトルメントが真実なので続行する。
-            log.warning("record_bundle_purchase RPC failed (non-fatal): \(error.localizedDescription)")
+            // 旧購入/家族共有/別アカウントは共有を保留。JWSやサーバーの生エラーは記録しない。
+            log.warning("bundle purchase sharing not confirmed")
+            errorMessage = "端末の購入は維持されています。アプリ間共有を確認できない場合は、購入時のアカウントでログインして復元してください。"
         }
     }
 
-    /// 返金・取り消し検出時に Supabase RPC `clear_bundle_status` を呼び出す。
-    /// RPC エラーは fail soft（ログ記録のみ）。
-    private func clearBundleStatusInSupabase() async {
-        do {
-            let _: BundleStatusResponse = try await client
-                .rpc("clear_bundle_status")
-                .execute()
-                .value
-            log.info("cleared bundle status in Supabase")
-        } catch {
-            log.warning("clear_bundle_status RPC failed (non-fatal): \(error.localizedDescription)")
-        }
+    private func applyServer(_ response: BundleStatusResponse, userID: UUID, generation: Int) {
+        synchronizeUser()
+        guard access.userID == userID, access.isCurrentRequest(generation) else { return }
+        let expiry = response.bundleExpiresAt.map { Date(timeIntervalSince1970: Double($0)) }
+        access.updateServer(active: response.bundleActive, expiresAt: expiry, for: userID, request: generation)
+        lastServerCheck = Date()
+        updateAccess()
     }
 
-    // MARK: - Transaction Listener
+    private func updateAccess() {
+        let now = Date()
+        isBundleActive = access.isActive(at: now)
+        expiryTask?.cancel()
+        guard let expiry = access.nextExpiration(after: now) else { return }
+        let delay = min(expiry.timeIntervalSince(now), 24 * 60 * 60)
+        expiryTask = Task { [weak self] in
+            do {
+                try await Task.sleep(for: .seconds(delay))
+            } catch { return }
+            guard let self else { return }
+            self.updateAccess()
+        }
+    }
 
     private func listenForTransactions() -> Task<Void, Never> {
         Task { [weak self] in
             for await result in Transaction.updates {
-                guard let self else { continue }
-                do {
-                    let transaction = try self.checkVerified(result)
-                    await transaction.finish()
+                guard let self, case .verified(let transaction) = result,
+                      Self.bundleProductIdentifiers.contains(transaction.productID) else { continue }
+                await self.recordSignedPurchase(result.jwsRepresentation)
+                await transaction.finish()
+                await self.refreshEntitlements()
+            }
+        }
+    }
 
-                    if transaction.revocationDate != nil {
-                        // 返金・取り消し
-                        self.isBundleActive = false
-                        await self.clearBundleStatusInSupabase()
-                        self.log.info("transaction revoked: \(transaction.productID)")
-                    } else {
-                        await self.refreshEntitlements()
-                    }
-                } catch {
-                    self.log.warning("transaction listener error: \(error.localizedDescription)")
-                }
+    /// 猶予を自己加算せず、Apple が検証した同一購入の更新情報から期限を得る。
+    private func localExpiration(for transaction: Transaction) async -> Date? {
+        let now = Date()
+        if let expiry = transaction.expirationDate, expiry > now { return expiry }
+        guard let status = await transaction.subscriptionStatus,
+              status.state == .inGracePeriod,
+              case .verified(let current) = status.transaction,
+              current.originalID == transaction.originalID,
+              Self.bundleProductIdentifiers.contains(current.productID),
+              current.revocationDate == nil,
+              case .verified(let renewal) = status.renewalInfo else { return nil }
+        return BundleAccessState.localExpiration(
+            transactionExpiresAt: transaction.expirationDate,
+            verifiedGraceExpiresAt: renewal.gracePeriodExpirationDate,
+            isInGracePeriod: true, now: now
+        )
+    }
+
+    private func periodicallyRefreshServer() -> Task<Void, Never> {
+        Task { [weak self] in
+            while !Task.isCancelled {
+                do {
+                    try await Task.sleep(for: .seconds(Self.serverCacheTTL))
+                } catch { return }
+                guard let self else { return }
+                await self.refreshBundleStatus(forceRefresh: true)
             }
         }
     }
 
     private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
         switch result {
-        case .verified(let value):
-            return value
-        case .unverified(_, let error):
-            throw error
+        case .verified(let value): return value
+        case .unverified(_, let error): throw error
         }
+    }
+}
+
+private struct VerifyBundlePurchaseRequest: Encodable {
+    let bundleId: String
+    let signedTransaction: String
+}
+
+private struct BundleStatusResponse: Decodable {
+    let bundleActive: Bool
+    let bundleProductId: String?
+    let bundleExpiresAt: Int?
+    let checkedAt: Int
+
+    enum CodingKeys: String, CodingKey {
+        case bundleActive = "bundle_active"
+        case bundleProductId = "bundle_product_id"
+        case bundleExpiresAt = "bundle_expires_at"
+        case checkedAt = "checked_at"
     }
 }
 
@@ -316,32 +313,3 @@ extension SubscriptionManager {
     }
 }
 
-// MARK: - Response DTO
-
-private struct BundleStatusResponse: Decodable {
-    let bundleActive: Bool
-    let bundleProductId: String?
-    let bundleExpiresAt: Int?
-    let checkedAt: Int
-
-    enum CodingKeys: String, CodingKey {
-        case bundleActive    = "bundle_active"
-        case bundleProductId = "bundle_product_id"
-        case bundleExpiresAt = "bundle_expires_at"
-        case checkedAt       = "checked_at"
-    }
-}
-
-// MARK: - Request DTO
-
-private struct RecordBundlePurchaseParams: Encodable {
-    let pProductId: String
-    let pExpiresAt: Int
-    let pOriginalTransactionId: String
-
-    enum CodingKeys: String, CodingKey {
-        case pProductId              = "p_product_id"
-        case pExpiresAt              = "p_expires_at"
-        case pOriginalTransactionId  = "p_original_transaction_id"
-    }
-}
