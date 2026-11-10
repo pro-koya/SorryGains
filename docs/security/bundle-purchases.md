@@ -28,3 +28,21 @@
 2026-11-10、source main `5c3bf8aba66b2a55a362f5f03a3502837002cc1c` からXcodeGenで生成し、Xcode 27.2 / arm64 iOS / Release / CODE_SIGNING_ALLOWED=NOのアプリ全体buildが成功（BUILD SUCCEEDED）。新しいCore stateも含む。App Storeへのupload/審査/公開は行っていない。選択モジュールの各10試験も成功したが、アプリ全体の既存テスト・UI・実購入/復元の正常往復は未検証。
 
 既存のCharacterSpeechView（Combineの直接import）、OnboardingContainerView（SwiftDataの直接import）、SageContextBuilder（非推奨initializer）のSwift警告、GoogleAds dSYM stubとAppIntentsの警告が残る。今回の購入state/managerにはコンパイル警告なし。tracked xcodeprojはXcodeGenで新しいstate/testの参照8行だけを追加し、手編集していない。
+
+## 署名済み配布候補（未アップロード）
+
+2026-11-10、既存のASC用キー・同じTeam設定を使い、署名付きarchiveとApp Store Connect向けIPAのローカルexportを完了。購入検証用SubscriptionKeyは配布に使用していない。
+
+| Item | Value |
+|---|---|
+| Version / build | 1.0.3 / 9 |
+| Source main | `340682d7356b32229245c7d7e014a1db9f204c72` |
+| Archive | `/Users/koya1104/.cache/koya-build/sorrygains/security-release/SorryGains.xcarchive` |
+| IPA | `/Users/koya1104/.cache/koya-build/sorrygains/security-release/appstore-export/SorryGains.ipa` |
+| IPA SHA256 | `2d653c6082e4d3e1c3a6f60b54d24bd9e22655be9f63eb61ae80e553dd1ac244` |
+| Minimum iOS | 17.0 |
+| Signature | Apple Distribution / Team 992BWJ82JX |
+
+archiveの既存開発署名をもとに、export時にIPAをApple Distributionへ再署名した。IPAを展開して `codesign --verify --deep --strict` とApple anchor/Team OU要件を確認。get-task-allow=false、App Store profile（端末リスト/全端末配布なし、beta-reports-active=true、有効期限内）、bundle ID・version/build・最低OSの一致を確認した。ExportOptionsはdestination=export、manageAppVersionAndBuildNumber=false。実機の正規購入/restore・更新/返金・アカウント切替の全通し、App Storeへのupload/審査/公開は未実施。
+
+採用ログとexportのPackaging.logにJWTやprivate keyの値を残さない。Xcodeが内部配布ログへ自動記録する一時JWTも、終了直後に走査・伏字化した。archive/IPAはdisk-guardで消されないよう各フォルダに.disk-guard-keepを置き、公開が承認されるまで保持する。
